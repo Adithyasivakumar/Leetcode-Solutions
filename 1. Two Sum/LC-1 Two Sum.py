@@ -9,9 +9,11 @@ class solution (object):
                 return [map[complement], i]
             map[nums[i]] = i
         return []
+    
 #input logic
 nums = list(map(int, input("Enter the values (Space - separated): ").split()))
 target = int(input("Enter the target value: "))
+
 #output logic
 sol = solution()
 index_pos = sol.twoSum(nums, target)
