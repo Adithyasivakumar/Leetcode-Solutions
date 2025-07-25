@@ -1,0 +1,91 @@
+## **118. Pascal's Triangle**
+
+### Problem Statement
+
+Given an integer `numRows`, generate the first `numRows` of Pascal's Triangle.
+
+---
+
+### Step 1: Understand the Problem
+
+- **Input:** Integer `numRows`
+- **Output:** List of lists, each representing a row of Pascal's Triangle
+- **Constraints:** 1 ≤ numRows ≤ 30
+
+---
+
+### Step 2: Work Through Examples
+
+**Example:**
+
+- Input: `numRows = 5`
+- Output:
+    
+    [
+    
+    [1],
+    
+    [1,1],
+    
+    [1,2,1],
+    
+    [1,3,3,1],
+    
+    [1,4,6,4,1]
+    
+    ]
+    
+
+---
+
+### Step 3: Identify the Problem Type
+
+- Array/list construction
+- Each row is built from the previous row
+
+---
+
+### Step 4: Think About Approaches
+
+### Brute Force
+
+- Not applicable; must build each row based on the previous one
+
+### Optimal Approach
+
+- Start with the first row `[1]`
+- For each subsequent row, set the first and last element to 1
+- Each inner element is the sum of the two elements above it
+
+---
+
+### Step 5: Plan Before Coding
+
+**Pseudocode:**
+
+1. Initialize `triangle = []`
+2. For each row from 0 to numRows-1:
+    - Start row with `[1]`
+    - For positions 1 to row-1, set value as sum of previous row's adjacent elements
+    - End row with `[1]` if row > 0
+    - Append row to triangle
+
+---
+
+### Step 6: Consider Edge Cases
+
+- numRows = 1 (should return `[[1]]`)
+
+---
+
+### Step 8: Complexity Analysis
+
+- **Time Complexity:** O(numRows²)
+- **Space Complexity:** O(numRows²)
+
+---
+
+### Step 9: Review and Reflect
+
+- Why does this work? Each row is constructed using the previous row, following Pascal's Triangle rules.
+- Can it be improved? This is the standard and optimal way for this problem.
