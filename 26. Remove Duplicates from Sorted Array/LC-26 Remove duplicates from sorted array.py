@@ -1,0 +1,19 @@
+# Remove duplicates from a sorted array
+# Main Logic
+class Solution:
+    def removeDuplicates(self, nums: list[int]) -> int:
+        if not nums:
+            return 0
+        i = 0
+        for j in range (1, len(nums)):
+            if nums[j] != nums[i]:
+                i += 1
+                nums[i] = nums[j]
+        return i + 1
+# Input Logic
+nums = [1,1,2,2,3,4,4]
+# Output Logic
+sol = Solution()
+k = sol.removeDuplicates(nums)
+print("Number of unique elements:", k)
+print("Modified list:", nums[:k])
