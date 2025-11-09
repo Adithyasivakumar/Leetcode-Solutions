@@ -1,0 +1,123 @@
+## **Best Time to Buy and Sell Stock**
+
+### Problem Statement
+
+You are given an array `prices` where `prices[i]` represents the stock price on the `i-th` day.
+
+You want to maximize your profit by choosing **one day to buy** and **a different day in the future to sell**.
+
+Return the **maximum profit** you can achieve from this transaction.
+
+If no profit is possible, return `0`.
+
+---
+
+### Step 1: Understand the Problem
+
+- **Input:** A list of integers `prices` (stock prices per day)
+- **Output:** An integer representing the **maximum possible profit**
+- **Constraints:**
+    - 1 ≤ `prices.length` ≤ 10⁵
+    - 0 ≤ `prices[i]` ≤ 10⁴
+    - Must **buy before sell** (cannot sell before buying)
+
+---
+
+### Step 2: Work Through Examples
+
+**Example 1:**
+
+- Input: `prices = [7,1,5,3,6,4]`
+- Buy on Day 2 (Price = 1), Sell on Day 5 (Price = 6)
+- Profit = `6 - 1 = 5`
+- **Output:** `5`
+
+**Example 2:**
+
+- Input: `prices = [7,6,4,3,1]`
+- Prices keep falling. No profit possible.
+- **Output:** `0`
+
+---
+
+### Step 3: Identify the Problem Type
+
+- Array traversal
+- Optimization problem (maximizing profit)
+- Greedy algorithm (single pass, make the best choice at each step)
+- Tracking **minimum so far** and **maximum profit**
+
+---
+
+### Step 4: Think About Approaches
+
+### Brute Force (Not recommended for large inputs)
+
+- For each day, check all future days for max profit.
+- **Time Complexity:** O(n²)
+- **Space Complexity:** O(1)
+
+---
+
+### Optimal Approach (Single Pass Greedy)
+
+- Keep track of the **minimum price so far** while looping.
+- At each day:
+    - Update the minimum price if the current price is lower.
+    - Calculate the profit if selling today.
+    - Update the `max_profit` if this profit is greater than the previous `max_profit`.
+- **Time Complexity:** O(n) (single loop)
+- **Space Complexity:** O(1) (constant extra space)
+
+---
+
+### Step 5: Plan Before Coding
+
+**Pseudocode:**
+
+1. Initialize:
+    - `min_price = ∞` (Infinity)
+    - `max_profit = 0`
+2. For each `price` in `prices`:
+    - If `price < min_price`:
+        
+        → Update `min_price = price`
+        
+    - Else if `price - min_price > max_profit`:
+        
+        → Update `max_profit = price - min_price`
+        
+3. Return `max_profit`
+
+---
+
+### Step 6: Consider Edge Cases
+
+- All prices are in descending order → Profit will remain `0`
+- Only one day in the input → Profit is `0` (cannot sell)
+- Constant prices (no gain) → Profit is `0`
+
+---
+
+### Step 7: Complexity Analysis
+
+- **Time Complexity:** O(n)
+    
+    (Iterates once over the prices array)
+    
+- **Space Complexity:** O(1)
+    
+    (Uses only two variables: `min_price`, `max_profit`)
+    
+
+---
+
+### Step 8: Review and Reflect
+
+- **Why does this work?**
+    
+    It keeps track of the **lowest buy price so far** and calculates the **best profit possible for each day**, ensuring buy is always before sell.
+    
+- **Can it be improved?**
+    
+    This is already the most efficient solution in both time and space for this problem.
