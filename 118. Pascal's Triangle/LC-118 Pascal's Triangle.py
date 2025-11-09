@@ -1,5 +1,4 @@
 from typing import List
-#main logic
 class Solution:
     def generate(self, numRows: int) -> List[List[int]]:
         triangle = []
@@ -10,13 +9,3 @@ class Solution:
                 row[j] = triangle[row_num - 1][j - 1] + triangle[row_num - 1][j]
             triangle.append(row)
         return triangle
-    
-# Example usage:
-#input logic
-numRows = int(input("Enter the number of rows: "))
-sol = Solution()
-#output logic
-result = sol.generate(numRows)
-print("Pascal's Triangle:")
-for row in result:
-    print(row)
