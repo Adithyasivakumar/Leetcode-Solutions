@@ -1,5 +1,6 @@
 class Solution:
     def romanToInt(self, s: str) -> int:
+        
         roman_map = {
             'I': 1,
             'V': 5,
@@ -9,6 +10,7 @@ class Solution:
             'D': 500,
             'M': 1000
         }
+        
         total = 0
         n = len(s)
         
@@ -17,6 +19,8 @@ class Solution:
             # Look at the next character (if it exists)
             if i + 1 < n and current_value < roman_map[s[i + 1]]:
                 total -= current_value
+                
             else:
                 total += current_value
+                
         return total

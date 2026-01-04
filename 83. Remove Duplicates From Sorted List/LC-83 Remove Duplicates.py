@@ -3,12 +3,16 @@ class ListNode:
         self.val = val
         self.next = next
 
-def removeDuplicates(head: ListNode) -> ListNode:  
+def removeDuplicates(head: ListNode) -> ListNode: 
+     
     current = head
     
     while current and current.next:
+        
         if current.val == current.next.val:  # Compare values, not nodes
             current.next = current.next.next
+            
         else:
             current = current.next
+            
     return head
