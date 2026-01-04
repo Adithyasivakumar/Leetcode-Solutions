@@ -1,9 +1,9 @@
-class solution (object):
+class Solution (object):
     def twoSum(self, nums, target):
-        map = {}
+        seen_map = {}
         for i in range (len(nums)):
             complement = target - nums[i]
-            if complement in map:
-                return [map[complement], i]
-            map[nums[i]] = i
+            if complement in seen_map:
+                return [seen_map[complement], i]
+            seen_map[nums[i]] = i
         return []
