@@ -1,12 +1,15 @@
-class Solution:
-    def moveZeros(self, nums: list[int]) -> None:
+class solution:
+    def Longest_common_prefix(self, strs: list[str]) -> str:
+    
+        if not strs:
+            return ""
         
-        i = 0
-        
-        for j in range(len(nums)):
+        for i in range(len(strs[0])):
+            char_to_check = strs[0][i]
             
-            if nums[j] != 0:
-                nums[i], nums[j] = nums[j], nums[i]
-                i += 1
-                
-        return i 
+            for j in range(1, len(strs)):
+            
+                if i >= len(strs[j]) or strs[j][i] != char_to_check:
+                    return strs[0][:i]
+                    
+        return strs[0]

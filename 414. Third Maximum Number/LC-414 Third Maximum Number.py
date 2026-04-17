@@ -1,12 +1,29 @@
+import math
 class Solution:
-    def moveZeros(self, nums: list[int]) -> None:
+    def thirdMax(self, nums: List[int]) -> int:
+
+        first = -math.inf
+        second = -math.inf
+        third = -math.inf
+
+        for num in nums:
         
-        i = 0
-        
-        for j in range(len(nums)):
-            
-            if nums[j] != 0:
-                nums[i], nums[j] = nums[j], nums[i]
-                i += 1
+            if num == first or num == second or num == third:
+                continue
+
+            if num > first:
+                third = second
+                second = first
+                first = num
                 
-        return i 
+            elif num > second:
+                third = second
+                second = num
+                
+            elif num > third:
+                third = num
+
+        if third == -math.inf:
+            return first
+        else:
+            return third
