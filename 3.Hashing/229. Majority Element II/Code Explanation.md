@@ -1,0 +1,1 @@
+Similar Pattern : Leetcode 169. Majority Element 1
