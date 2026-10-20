@@ -1,40 +1,37 @@
 # Problem Explanation
 
-## 76. Minimum Window Substring
+## 3. Longest Substring Without Repeating Characters
 
 ## Step 1: Understand the Problem
 
-- **Input:** A master string `s` and a target string `t`.
-- **Output:** The shortest contiguous substring in `s` that contains every character from `t`, including duplicates. If none exists, return an empty string `""`.
-- **Definition:** If `t` is `"AABC"`, your window must contain at least two 'A's, one 'B', and one 'C'. It can contain extra characters, but it must satisfy the minimum frequencies.
-- **Goal:** Efficiently track when all requirements are met without recounting the entire window at every step.
+- **Input:** A string `s`.
+- **Output:** The length of the longest contiguous substring containing strictly unique characters.
+- **Definition:** You are looking for the widest possible window where no single character appears more than once.
+- **Goal:** Expand the window to the right as long as incoming characters are new. The moment a duplicate is encountered, shrink the window from the left until that specific duplicate is removed.
 
 ## Step 2: Work Through Examples
 
 - **Example 1:**
-    - `s` = `"ADOBECODEBANC"`, `t = "ABC"`
-    - Target counts: `A:1, B:1, C:1`. `need` = 3.
-    - *Expand:* `"ADOBEC"` → Contains A, B, C. `have` = 3. Valid! Size = 6.
-    - *Shrink:* Drop A. `"DOBEC"` → `have` drops to 2. Invalid.
-    - *Expand:* `"DOBECODEBA"` → Contains B, C, A. `have` = 3. Valid! Size = 10.
-    - *Shrink:* Drop D, O, B, E. `"CODEBA"` → Valid! Size = 6.
-    - *Shrink:* Drop C. `"ODEBA"` → Invalid.
-    - *Expand:* `"ODEBANC"` → Contains B, A, C. `have` = 3. Valid! Size = 7.
-    - *Shrink:* Drop O, D, E. `"BANC"` → Valid! Size = 4.
-    - **Output:** `"BANC"`
+    - `s` = `"abcabcbb"`
+    - *Expand:* `"a"`, `"ab"`, `"abc"` (Length = 3).
+    - *Expand:* Incoming is `'a'`. Our set `{'a', 'b', 'c'}` already has an `'a'`.
+    - *Shrink:* Drop left (`'a'`). Set is `{'b', 'c'}`. Window is `"bc"`.
+    - *Expand:* Add the new `'a'`. Window is `"bca"` (Length = 3).
+    - *Expand:* Incoming is `'b'`. Set has `'b'`.
+    - *Shrink:* Drop `'b'`. Set is `{'c', 'a'}`. Window is `"ca"`. Add new `'b'`. Window is `"cab"` (Length = 3).
+    - *Fast forward:* Drops keep happening as we hit the repeating `'b'`s. Maximum length remains `3`.
+    - **Output:** `3`
 
 ## Step 3: Identify the Problem Type
 
-- **Dynamic Sliding Window + Two Hash Maps:** The ultimate test of the sliding window pattern. You need one map to store the static target requirements, and one map to track the dynamic state of your window.
+- **Dynamic Sliding Window + Hash Set:** This is the flagship problem for dynamic sliding windows. The set provides O(1) lookups to verify uniqueness, while the two pointers dynamically stretch and shrink the valid sequence.
 
 ## Step 4: Think About Approaches
 
-- **Brute Force (O(N2) Time):** Check every substring. Re-count all characters for every substring to see if it matches `t`.
-    - *Critique:* Massive Time Limit Exceeded (TLE).
-- **Dynamic Sliding Window with `have` and `need` (O(N) Time):** This is your provided code.
-    - Instead of comparing two entire Hash Maps on every iteration (which would take O(26) or O(128) time per step), you use two integer counters: `have` and `need`.
-    - You only increment `have` when a character's frequency in the window *exactly* matches its requirement in `t`.
-    - *Critique:* Flawless. This is the exact optimal solution expected in FAANG interviews for this famous "Hard" problem.
+- **Frequency Map (`freq = {}`):** This is what you used in the previous draft. It works perfectly but wastes memory tracking exact counts when the count is never allowed to exceed 1 anyway.
+- **Hash Set (`seen = set()`):** This is your current provided code.
+    - Instead of incrementing and decrementing counts, you simply `add()` and `remove()`.
+    - *Critique:* Absolute perfection. You applied the optimization flawlessly. It is cleaner, faster, and more memory-efficient.
 
 ## Step 5: Plan Before Coding
 
@@ -42,166 +39,117 @@
 
 Plaintext
 
-```
-function minWindow(s, t):
-// 1. Setup Target and Trackers
-target = frequency map of t
-freq = empty map
-have = 0, need = length of target's unique keys
+```python
+function lengthOfLongestSubstring(s):
+// 1. Setup
+seen = empty set
+max_len = 0
+l = 0
 
 // 2. Expand Window
 for r from 0 to length of s:
     incoming = s[r]
-    if incoming is in target:
-        increment freq[incoming]
-        if freq[incoming] exactly equals target[incoming]:
-            have += 1
 
-    // 3. Shrink Window
-    while have == need:
-        update min_len and res_str if current window is smaller
-
-        outgoing = s[l]
-        if outgoing is in target:
-            decrement freq[outgoing]
-            if freq[outgoing] falls below target[outgoing]:
-                have -= 1 // Breaks the loop!
-
+    // 3. Resolve Collisions (Shrink)
+    while incoming is in seen:
+        remove s[l] from seen
         l += 1
 
-return res_str
+    // 4. Update State
+    add incoming to seen
+    update max_len if (r - l + 1) is larger
+
+return max_len
 ```
 
 ## Step 6: Consider Edge Cases
 
-- **`s` is shorter than `t`:** `s = "a", t = "aa"`. The `have == need` condition will literally never trigger. The function naturally skips the inner loop and returns `""`.
-- **Excess duplicate characters:** `s = "AAAA", t = "A"`. The `have` counter only increments when `freq['A'] == target['A']` (at exactly 1). For the 2nd, 3rd, and 4th 'A', `have` is untouched, meaning it never exceeds `need` and doesn't break the logic.
+- **Empty String:** `s = ""`. The loop never executes, and your mathematically correct initialization of `max_len = 0` is safely returned.
+- **All Identical Characters:** `s = "bbbbb"`. The window expands to `"b"`, then the `while` loop aggressively kicks out the old `"b"` before adding the new one on every single step. Max length stays exactly `1`.
 
 ## Step 7: Complexity Analysis
 
-- **Time Complexity:** O(N+M), where N is the length of `s` and M is the length of `t`. Building the target counter takes O(M). The sliding window `r` and `l` pointers traverse `s` exactly once each, taking O(N). Because you use `have` and `need`, you never iterate over the dictionaries to compare them, keeping the inner loop work strictly O(1).
-- **Space Complexity:** O(1) auxiliary space (or O(U) where U is the number of unique characters in the alphabet). The Hash Maps will never exceed 128 keys (standard ASCII), which counts as constant space regardless of string size.
+- **Time Complexity:** O(N) amortized. In the worst-case scenario, the right pointer processes every character once, and the left pointer processes every character once to catch up. 2N operations simplify to strictly linear time.
+- **Space Complexity:** O(1) auxiliary space. The `seen` set only stores unique characters. Since the alphabet is fixed (ASCII has 128 characters), the memory footprint is bounded by a constant, regardless of whether the string is 10 characters or 10 million characters long.
 
 ## Step 8: Review and Reflect
 
-- **Mastery Reached:** You took the hint about `have` and `need` from the previous turn and implemented it perfectly. This separates average candidates from top-tier candidates. Comparing dictionaries directly inside a loop is the most common mistake here, and you bypassed it completely.
+- **Flawless Implementation:** You fixed the `float('-inf')` initialization bug from the previous attempt, ensuring edge cases like empty strings return `0`. Your use of the `set` completely eliminates unnecessary dictionary arithmetic.
 
 # Code Explanation
 
-## The Analogy: The Scavenger Hunt Checklist
+## The Analogy: The Exclusive VIP Line
 
-Imagine you are on a scavenger hunt. The required list (`target`) says you need 2 Apples, 1 Banana, and 1 Carrot. You have exactly 3 unique *categories* to fulfill (`need = 3`).
-You walk down a street (`s`) collecting items in your backpack (`freq`).
-When you pick up your 1st Apple, your category requirement isn't met yet. When you pick up your 2nd Apple, you check off the "Apple" category on your list (`have += 1`). Picking up a 3rd Apple is fine, but you don't check the box again.
-Once you check off all 3 categories (`while have == need`), you know your backpack is valid!
-Because you are lazy and don't want to carry a heavy backpack, you start dropping items from the bottom of your bag (`outgoing`). You drop a 3rd Apple? Fine, the box is still checked. You drop the 2nd Apple? Uh oh! You uncheck the "Apple" category (`have -= 1`), and you must resume walking down the street to find a replacement.
+Imagine a VIP line for a club with a strict rule: **No two people with the exact same first name can be in the line at the same time.**
+You are the bouncer (`r`), letting people into the line one by one and writing their names on a whiteboard (`seen`).
+A new guy named "John" tries to enter. You check the whiteboard and see "John" is already inside!
+You cannot let the new John in yet. You must walk to the back of the line (`l`) and start kicking people out, erasing their names from the whiteboard, one by one, until the *original* John is kicked out. Only then is the rule satisfied, allowing the *new* John to join the front of the line! You record the length of the line at its absolute peak.
 
-## Step 1: The Checklist Setup
-
-Python
-
-```
-target = Counter(t)
-freq = {}
-min_len = float('inf')
-res_str = ""
-have, need = 0, len(target)
-```
-
-- **What it does:** Uses Python's `Counter` to instantly map the requirements. `need` is set to the number of *unique* characters required (the length of the dictionary), not the total length of string `t`.
-
-## Step 2: Fulfilling the Categories
+## Step 1: The Collision Resolution (The Shrink)
 
 Python
 
 ```
-for r in range(len(s)):
-    incoming = s[r]
-
-    if incoming in target:
-        freq[incoming] = freq.get(incoming, 0) + 1
-
-        if freq[incoming] == target[incoming]:
-            have += 1
+while incoming in seen:
+    seen.remove(s[l])
+    l += 1
 ```
 
-- **What it does:** Expands the right pointer. It strictly ignores characters that aren't in the target string. If an incoming character pushes its current frequency to exactly match the required frequency, a category is fulfilled (`have += 1`).
+- **What it does:** The moment a duplicate is detected, this `while` loop triggers. It removes the character at the left pointer `s[l]` from the window and the set. It continues advancing `l` and deleting elements until the duplicate character is finally purged from the set.
 
-## Step 3: Shrinking the Backpack
+## Step 2: The Addition and Calculation
 
 Python
 
 ```
-    while have == need:
-        current_len = r-l+1
-        if current_len < min_len:
-            min_len = current_len
-            res_str = s[l:r+1]
+seen.add(incoming)
+cur_len = r-l+1
+if cur_len > max_len:
+    max_len = cur_len
 ```
 
-- **What it does:** Triggers only when all requirements are met. It checks if the current physical window is the shortest found so far, and if so, records it.
-
-## Step 4: Unchecking the Boxes
-
-Python
-
-```
-        outgoing = s[l]
-        if outgoing in target:
-            freq[outgoing] -= 1
-            if freq[outgoing] < target[outgoing]:
-                have -= 1
-            if freq[outgoing] == 0:
-                del freq[outgoing]
-        l += 1
-```
-
-- **What it does:** Looks at the character about to be dropped from the left. If it's a target character, it removes it from our backpack (`freq`). If dropping it causes our held amount to fall *strictly below* the required amount, we uncheck the category (`have -= 1`), which immediately terminates the `while` loop and forces `r` to expand again!
+- **What it does:** With the collision resolved, it safely adds the new incoming character to the set. It then calculates the physical size of this newly validated window and updates `max_len` if it breaks the previous record.
 
 # Analysis Summary (Deep Revision Framework)
 
-- **The Core Idea:** To find the minimum window containing a target string's characters, use two pointers to create a dynamic sliding window. Maintain two Hash Maps (one for target counts, one for current window counts) and two integers (`have` and `need`) to track how many unique character requirements are fully satisfied. Expand the window until `have == need`, then shrink from the left to optimize length, updating `have` dynamically.
-- **Data Structure Choice:** Two Hash Maps (`collections.Counter` and `dict`).
-- **Algorithm Pattern:** Dynamic Sliding Window.
+- **The Core Idea:** To find the longest substring without repeating characters, use a dynamic sliding window. Expand the right boundary to add characters. If a duplicate is encountered, shrink the left boundary continuously until the duplicate is ejected. Record the maximum window length at each valid step.
+- **Data Structure Choice:** Hash Set.
+- **Algorithm Pattern:** Dynamic Sliding Window (Maximization).
 - **Complexity:**
-    - **Time:** O(N+M)
+    - **Time:** O(N) amortized.
     - **Space:** O(1) (Bounded by alphabet size).
-- **Articulate the Solution:** "I used a dynamic sliding window combined with frequency maps. To avoid comparing dictionaries in O(26) time on every loop, I introduced a `have` and `need` counter. `need` represents the number of unique characters in `t`. As I expanded the right pointer, I incremented `have` whenever a character's window frequency perfectly matched its target frequency. Once `have` equaled `need`, I recorded the window size and shrank the left pointer until `have` dropped below `need`. This achieved an optimal O(N+M) linear time solution."
+- **Articulate the Solution:** "I used a dynamic sliding window to track the longest substring of unique characters. As I iterated through the string with a right pointer, I checked if the incoming character already existed in my tracking Hash Set. If a collision occurred, I used a while loop to increment my left pointer and remove characters from the set until the duplicate was eliminated. I then added the new character and updated my maximum length, resulting in an optimal O(N) time complexity."
 
 # Key Notes
 
-## A High-Performance Micro-Optimization
+## The "Index Jump" Optimization (Senior Level)
 
-Your logic is pristine, but there is one line that can slow down your code in a strict production environment:
+Your set-based approach is O(N) and is considered a perfectly valid, optimal solution. However, in a FAANG interview, you can optimize this from a 2N traversal (where `l` slowly crawls forward in a `while` loop) into a strict 1N traversal.
 
-Python
-
-```
-# Inside the while loop
-res_str = s[l:r+1]
-```
-
-**The Issue:** Slicing a string in Python creates a brand-new string object in memory. If the string is massive, performing this string allocation repeatedly inside the `while` loop takes extra time and memory.
-
-**The Fix:** Instead of slicing the string at every step, just store the raw `left` and `right` indices! Only slice the string exactly *once* at the very end of the function.
+Instead of a Set, use a Hash Map to store the **exact index** of where we last saw each character. When a collision happens, we don't need a `while` loop to walk the left pointer forward. We can instantly teleport the left pointer just past the old duplicate!
 
 Python
 
-```
+```python
 class Solution:
-    def minWindow(self, s: str, t: str) -> str:
-        # ... setup ...
-        res_l, res_r = -1, -1  # Track indices instead of strings
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        last_seen = {}
+        max_len = 0
+        l = 0
 
-        # ... loop logic ...
-        while have == need:
-            if (r - l + 1) < min_len:
-                min_len = r - l + 1
-                res_l, res_r = l, r  # Just save the integers!
+        for r in range(len(s)):
+            incoming = s[r]
 
-            # ... shrinking logic ...
+            # If we've seen it, AND its last position is inside our current window:
+            if incoming in last_seen and last_seen[incoming] >= l:
+                # Instantly jump the left pointer past the old duplicate!
+                l = last_seen[incoming] + 1
 
-        return s[res_l : res_r + 1] if min_len != float('inf') else ""
+            # Update the latest index for this character
+            last_seen[incoming] = r
+            max_len = max(max_len, r - l + 1)
+
+        return max_len
 ```
 
-This avoids creating useless intermediate strings and pushes the solution to maximum hardware efficiency.
+This entirely removes the inner `while` loop, guaranteeing a strict 1-pass solution where `l` teleports instead of crawling.
